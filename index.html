@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Sasuke Buffett" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#080a10" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>Sasuke Buffett V1</title>
+  <style>
+    :root {
+      --bg: #07080d;
+      --panel: #11131b;
+      --panel2: #171a24;
+      --text: #f3f5fb;
+      --muted: #9ca3b8;
+      --line: rgba(255,255,255,.09);
+      --accent: #7c8cff;
+      --accent2: #39d0ff;
+      --danger: #ff5d73;
+      --good: #4ade80;
+      --warn: #fbbf24;
+      --radius: 18px;
+      --shadow: 0 18px 40px rgba(0,0,0,.35);
+      font-synthesis: none;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { margin:0; min-height:100%; background:var(--bg); color:var(--text); font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", sans-serif; }
+    body { overscroll-behavior: none; }
+    .app { max-width: 460px; margin: 0 auto; min-height: 100vh; padding: env(safe-area-inset-top) 14px calc(86px + env(safe-area-inset-bottom)); background: radial-gradient(circle at 50% -10%, rgba(124,140,255,.16), transparent 40%), var(--bg); }
+    header { position: sticky; top:0; z-index: 5; padding: 18px 2px 12px; background: linear-gradient(to bottom, rgba(7,8,13,.96), rgba(7,8,13,.82), transparent); backdrop-filter: blur(14px); }
+    .kicker { color: var(--accent2); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; font-weight: 700; }
+    h1 { margin: 4px 0 0; font-size: 28px; letter-spacing: -.04em; }
+    .sub { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.35; }
+    .tabs { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: min(460px,100vw); display:grid; grid-template-columns: repeat(3,1fr); gap:8px; padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); background: rgba(8,10,16,.92); border-top: 1px solid var(--line); backdrop-filter: blur(18px); z-index:10; }
+    .tab { border:1px solid var(--line); background:var(--panel); color:var(--muted); border-radius: 999px; padding: 12px 6px; font-size: 12px; font-weight: 800; }
+    .tab.active { color: var(--text); border-color: rgba(124,140,255,.55); box-shadow: 0 0 0 1px rgba(124,140,255,.18) inset; background: linear-gradient(135deg, rgba(124,140,255,.2), rgba(57,208,255,.08)); }
+    section { display:none; animation: fade .18s ease; }
+    section.active { display:block; }
+    @keyframes fade { from{opacity:.6; transform: translateY(4px)} to{opacity:1; transform:none} }
+    .card { background: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.015)), var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; margin: 14px 0; }
+    .card h2, .card h3 { margin:0 0 10px; letter-spacing:-.02em; }
+    .card h2 { font-size:20px; } .card h3 { font-size:16px; }
+    .note { color: var(--muted); font-size: 13px; line-height:1.45; }
+    .checklist { list-style:none; padding:0; margin: 12px 0 0; display:grid; gap:10px; }
+    .checklist li { display:grid; grid-template-columns: 22px 1fr; gap: 10px; align-items:start; color:#e9ecf8; font-size:14px; line-height:1.3; padding: 12px; border: 1px solid var(--line); background: rgba(255,255,255,.025); border-radius: 14px; }
+    .dot { width:18px; height:18px; border-radius:50%; border:1px solid rgba(57,208,255,.65); box-shadow: 0 0 14px rgba(57,208,255,.18); margin-top:1px; }
+    label { display:block; font-size:12px; color:var(--muted); font-weight:750; margin: 0 0 6px; }
+    input, select, textarea { width:100%; border:1px solid var(--line); background: #0b0d14; color:var(--text); border-radius: 14px; padding: 13px 12px; font-size: 16px; outline:none; }
+    textarea { min-height: 90px; resize: vertical; line-height:1.35; }
+    input:focus, select:focus, textarea:focus { border-color: rgba(124,140,255,.65); box-shadow: 0 0 0 3px rgba(124,140,255,.14); }
+    .grid2 { display:grid; grid-template-columns:1fr 1fr; gap: 12px; }
+    .field { margin: 12px 0; }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; margin-top: 12px; }
+    button { border:0; color:var(--text); background: var(--panel2); border:1px solid var(--line); border-radius: 14px; padding: 13px 14px; font-weight:850; font-size:14px; cursor:pointer; }
+    .primary { background: linear-gradient(135deg, rgba(124,140,255,.92), rgba(57,208,255,.72)); color:#050712; border-color: transparent; }
+    .danger { color: #ffd8de; border-color: rgba(255,93,115,.35); background: rgba(255,93,115,.1); }
+    .ghost { color: var(--muted); }
+    .entry { border:1px solid var(--line); background: rgba(255,255,255,.025); border-radius:16px; padding:14px; margin:12px 0; }
+    .entryTop { display:flex; justify-content:space-between; gap:10px; align-items:start; }
+    .ticker { font-size:20px; font-weight:900; letter-spacing:.02em; }
+    .pill { display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line); color:var(--muted); border-radius: 999px; padding:6px 9px; font-size:11px; font-weight:800; margin-top:6px; }
+    .money.good { color: var(--good); } .money.bad { color: var(--danger); }
+    .reviewBox { white-space:pre-wrap; font-size:13px; line-height:1.45; color:#e9ecf8; background:#090b12; border:1px solid var(--line); border-radius:14px; padding:12px; margin-top:10px; }
+    .spinner { width: 18px; height: 18px; display:inline-block; border-radius:50%; border:2px solid rgba(255,255,255,.18); border-top-color: var(--accent2); animation: spin .8s linear infinite; vertical-align:-4px; margin-right:8px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .small { font-size:12px; color:var(--muted); line-height:1.4; }
+    .hidden { display:none !important; }
+    .statrow { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
+    .stat { background: rgba(255,255,255,.035); border:1px solid var(--line); border-radius:12px; padding:8px 10px; color:var(--muted); font-size:12px; }
+    @media (orientation: landscape) { .app:before { content:"Portrait mode only"; position:fixed; inset:0; background:#07080d; z-index:999; display:flex; align-items:center; justify-content:center; color:var(--text); font-size:20px; font-weight:900; } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="kicker">Trading Performance OS · V1</div>
+      <h1>Sasuke Buffett</h1>
+      <p class="sub">Checklist, journal, review, export. No scanner. No fake edge.</p>
+    </header>
+
+    <section id="checklist" class="active">
+      <div class="card">
+        <h2>Entry Checklist</h2>
+        <p class="note">Static pre-entry review. The goal is not to find more trades; it is to reject weak trades faster.</p>
+        <ul class="checklist">
+          <li><span class="dot"></span><span>Is there a real catalyst or clear reason this stock is moving?</span></li>
+          <li><span class="dot"></span><span>Is volume meaningfully above normal, not just visually exciting?</span></li>
+          <li><span class="dot"></span><span>Is liquidity sufficient for clean entry and exit?</span></li>
+          <li><span class="dot"></span><span>Is the bid/ask spread acceptable relative to your stop?</span></li>
+          <li><span class="dot"></span><span>Is the trend clear on the timeframe you are trading?</span></li>
+          <li><span class="dot"></span><span>Are you entering near a logical level instead of chasing a stretched candle?</span></li>
+          <li><span class="dot"></span><span>Is there confirmation after the move, not just hope that it keeps going?</span></li>
+          <li><span class="dot"></span><span>Is your stop obvious before entry?</span></li>
+          <li><span class="dot"></span><span>Is your target realistic based on structure, range, and resistance?</span></li>
+          <li><span class="dot"></span><span>Is estimated risk/reward at least 1:2?</span></li>
+          <li><span class="dot"></span><span>Does this fit your time window and ability to monitor the trade?</span></li>
+          <li><span class="dot"></span><span>Are you calm enough to execute the stop without renegotiating?</span></li>
+          <li><span class="dot"></span><span>Would you still take this trade if you could only take one trade today?</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="journal">
+      <div class="card">
+        <h2 id="formTitle">New Trade Journal</h2>
+        <form id="tradeForm">
+          <input type="hidden" id="id" />
+          <div class="grid2">
+            <div class="field"><label>Date</label><input id="date" type="date" required /></div>
+            <div class="field"><label>Time</label><input id="time" type="time" required /></div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label>Ticker</label><input id="ticker" placeholder="HIVE" autocapitalize="characters" required /></div>
+            <div class="field"><label>Direction</label><select id="direction"><option>Long</option><option>Short</option><option>Watch Only</option></select></div>
+          </div>
+          <div class="field"><label>Setup Type</label><input id="setupType" placeholder="Breakout, pullback, continuation..." /></div>
+          <div class="grid2">
+            <div class="field"><label>Catalyst Type</label><select id="catalystType"><option>None</option><option>Earnings</option><option>FDA / Regulatory</option><option>Contract / Partnership</option><option>Analyst / Upgrade</option><option>SEC Filing</option><option>Crypto Sympathy</option><option>Sector Sympathy</option><option>Macro</option><option>Social / Speculative</option><option>Other</option></select></div>
+            <div class="field"><label>Catalyst Strength</label><select id="catalystStrength"><option>Unclear</option><option>Weak</option><option>Moderate</option><option>Strong</option></select></div>
+          </div>
+          <div class="field"><label>News Verified?</label><select id="newsVerified"><option>No</option><option>Uncertain</option><option>Yes</option></select></div>
+          <div class="grid2">
+            <div class="field"><label>Entry Price</label><input id="entryPrice" type="number" step="0.0001" inputmode="decimal" /></div>
+            <div class="field"><label>Stop Price</label><input id="stopPrice" type="number" step="0.0001" inputmode="decimal" /></div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label>Target Price</label><input id="targetPrice" type="number" step="0.0001" inputmode="decimal" /></div>
+            <div class="field"><label>Exit Price</label><input id="exitPrice" type="number" step="0.0001" inputmode="decimal" /></div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label>Position Size</label><input id="positionSize" type="number" step="0.0001" inputmode="decimal" /></div>
+            <div class="field"><label>Actual Result</label><input id="actualResult" placeholder="+$0.30 / -$0.16 / BE" /></div>
+          </div>
+          <div class="field"><label>Estimated Risk/Reward</label><input id="riskReward" readonly placeholder="Auto-calculates from entry/stop/target" /></div>
+          <div class="field"><label>Volume Notes</label><textarea id="volumeNotes"></textarea></div>
+          <div class="field"><label>Liquidity / Spread Notes</label><textarea id="liquidityNotes"></textarea></div>
+          <div class="field"><label>Entry Reason</label><textarea id="entryReason"></textarea></div>
+          <div class="field"><label>Exit Reason</label><textarea id="exitReason"></textarea></div>
+          <div class="field"><label>Emotional State</label><select id="emotionalState"><option>Calm</option><option>Excited</option><option>FOMO</option><option>Hesitant</option><option>Frustrated</option><option>Revenge Trade Risk</option><option>Other</option></select></div>
+          <div class="field"><label>Rule Followed?</label><select id="ruleFollowed"><option>Yes</option><option>Mostly</option><option>No</option><option>Unclear</option></select></div>
+          <div class="field"><label>Mistake Made</label><textarea id="mistakeMade"></textarea></div>
+          <div class="field"><label>Lesson Learned</label><textarea id="lessonLearned"></textarea></div>
+          <div class="field"><label>Screenshot Notes</label><textarea id="screenshotNotes" placeholder="Describe screenshot or chart context. Actual images are not stored in V1."></textarea></div>
+          <div class="actions">
+            <button type="submit" class="primary">Save Trade</button>
+            <button type="button" id="resetBtn" class="ghost">Clear</button>
+            <button type="button" id="exportBtn">Export CSV</button>
+          </div>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Past Entries</h2>
+        <div id="entries"></div>
+      </div>
+    </section>
+
+    <section id="review">
+      <div class="card">
+        <h2>Sasuke Buffett Review</h2>
+        <p class="note">Saved journal entries can be sent for optional AI feedback. Feedback is stored locally with the entry and exported in the CSV.</p>
+        <div class="field"><label>OpenAI API Key</label><input id="apiKey" type="password" placeholder="Optional. Stored locally on this device." /></div>
+        <p class="small"><strong>Security note:</strong> client-side API keys are visible to the browser environment. Fine for private local testing; not ideal for production. Safer V2: small backend proxy.</p>
+        <div id="reviewList"></div>
+      </div>
+    </section>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab active" data-tab="checklist">Checklist</button>
+    <button class="tab" data-tab="journal">Journal</button>
+    <button class="tab" data-tab="review">Review</button>
+  </nav>
+
+<script>
+(() => {
+  const DB_NAME = 'sasuke_buffett_v1';
+  const STORE = 'trades';
+  let db;
+  let trades = [];
+  const fields = ['id','date','time','ticker','direction','setupType','catalystType','catalystStrength','newsVerified','entryPrice','stopPrice','targetPrice','exitPrice','positionSize','riskReward','actualResult','volumeNotes','liquidityNotes','entryReason','exitReason','emotionalState','ruleFollowed','mistakeMade','lessonLearned','screenshotNotes'];
+
+  const $ = id => document.getElementById(id);
+
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = e => {
+        const database = e.target.result;
+        if (!database.objectStoreNames.contains(STORE)) {
+          const store = database.createObjectStore(STORE, { keyPath: 'id' });
+          store.createIndex('date', 'date');
+        }
+      };
+      req.onsuccess = e => { db = e.target.result; resolve(db); };
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  function tx(mode='readonly') { return db.transaction(STORE, mode).objectStore(STORE); }
+
+  function getAllTrades() {
+    return new Promise((resolve, reject) => {
+      const req = tx().getAll();
+      req.onsuccess = () => resolve(req.result || []);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  function saveTrade(trade) {
+    return new Promise((resolve, reject) => {
+      const req = tx('readwrite').put(trade);
+      req.onsuccess = resolve;
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  function deleteTrade(id) {
+    return new Promise((resolve, reject) => {
+      const req = tx('readwrite').delete(id);
+      req.onsuccess = resolve;
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  function calcRR() {
+    const e = parseFloat($('entryPrice').value);
+    const s = parseFloat($('stopPrice').value);
+    const t = parseFloat($('targetPrice').value);
+    const dir = $('direction').value;
+    if (!e || !s || !t || e === s) { $('riskReward').value = ''; return ''; }
+    let risk, reward;
+    if (dir === 'Short') { risk = s - e; reward = e - t; }
+    else { risk = e - s; reward = t - e; }
+    if (risk <= 0 || reward <= 0) { $('riskReward').value = 'Invalid'; return 'Invalid'; }
+    const rr = (reward / risk).toFixed(2);
+    $('riskReward').value = `1:${rr}`;
+    return `1:${rr}`;
+  }
+
+  function formToTrade() {
+    const now = new Date();
+    const trade = {};
+    fields.forEach(f => trade[f] = $(f).value.trim());
+    trade.id = trade.id || crypto.randomUUID();
+    trade.ticker = trade.ticker.toUpperCase();
+    trade.riskReward = calcRR() || trade.riskReward;
+    trade.updatedAt = now.toISOString();
+    trade.createdAt = trade.createdAt || now.toISOString();
+    trade.sasukeSharingan = trade.sasukeSharingan || '';
+    trade.tradeGrade = trade.tradeGrade || '';
+    return trade;
+  }
+
+  function fillForm(trade) {
+    fields.forEach(f => { if ($(f)) $(f).value = trade[f] || ''; });
+    $('formTitle').textContent = `Edit ${trade.ticker || 'Trade'}`;
+    switchTab('journal');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function resetForm() {
+    $('tradeForm').reset();
+    $('id').value = '';
+    $('formTitle').textContent = 'New Trade Journal';
+    setDefaults();
+  }
+
+  function setDefaults() {
+    const d = new Date();
+    $('date').value ||= d.toISOString().slice(0,10);
+    $('time').value ||= d.toTimeString().slice(0,5);
+  }
+
+  async function refresh() {
+    trades = (await getAllTrades()).sort((a,b) => `${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`));
+    renderEntries();
+    renderReviewList();
+  }
+
+  function renderEntries() {
+    const box = $('entries');
+    if (!trades.length) { box.innerHTML = '<p class="note">No trades saved yet.</p>'; return; }
+    box.innerHTML = trades.map(t => entryHTML(t, false)).join('');
+  }
+
+  function renderReviewList() {
+    const box = $('reviewList');
+    if (!trades.length) { box.innerHTML = '<p class="note">Save a journal entry first.</p>'; return; }
+    box.innerHTML = trades.map(t => entryHTML(t, true)).join('');
+  }
+
+  function entryHTML(t, withReview) {
+    const result = (t.actualResult || '').trim();
+    const moneyClass = result.startsWith('-') ? 'bad' : result.startsWith('+') ? 'good' : '';
+    return `<div class="entry" data-id="${t.id}">
+      <div class="entryTop">
+        <div><div class="ticker">${escapeHTML(t.ticker || 'NO TICKER')}</div><div class="pill">${escapeHTML(t.date || '')} · ${escapeHTML(t.time || '')}</div></div>
+        <div class="money ${moneyClass}">${escapeHTML(result)}</div>
+      </div>
+      <div class="statrow">
+        <span class="stat">${escapeHTML(t.direction || '')}</span>
+        <span class="stat">RR ${escapeHTML(t.riskReward || '—')}</span>
+        <span class="stat">Catalyst ${escapeHTML(t.catalystStrength || '—')}</span>
+        <span class="stat">Rules ${escapeHTML(t.ruleFollowed || '—')}</span>
+      </div>
+      ${t.entryReason ? `<p class="small"><strong>Entry:</strong> ${escapeHTML(t.entryReason)}</p>` : ''}
+      ${t.sasukeSharingan ? `<h3>Sasuke’s Sharingan</h3><div class="reviewBox">${escapeHTML(t.sasukeSharingan)}</div>` : ''}
+      <div class="actions">
+        <button onclick="window.SB.edit('${t.id}')">Edit</button>
+        ${withReview ? `<button class="primary" onclick="window.SB.review('${t.id}')">Activate Sasuke Review</button>` : ''}
+        <button class="danger" onclick="window.SB.remove('${t.id}')">Delete</button>
+      </div>
+    </div>`;
+  }
+
+  function escapeHTML(str='') { return String(str).replace(/[&<>'"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+
+  function toCSVValue(v) { return `"${String(v ?? '').replaceAll('"','""')}"`; }
+
+  function exportCSV() {
+    const headers = ['Date','Time','Ticker','Direction','Setup Type','Catalyst Type','Catalyst Strength','News Verified?','Entry Price','Stop Price','Target Price','Exit Price','Position Size','Estimated Risk/Reward','Actual Result','Volume Notes','Liquidity/Spread Notes','Entry Reason','Exit Reason','Emotional State','Rule Followed?','Mistake Made','Lesson Learned','Screenshot Notes','Sasuke’s Sharingan','Trade Grade'];
+    const rows = trades.slice().reverse().map(t => [t.date,t.time,t.ticker,t.direction,t.setupType,t.catalystType,t.catalystStrength,t.newsVerified,t.entryPrice,t.stopPrice,t.targetPrice,t.exitPrice,t.positionSize,t.riskReward,t.actualResult,t.volumeNotes,t.liquidityNotes,t.entryReason,t.exitReason,t.emotionalState,t.ruleFollowed,t.mistakeMade,t.lessonLearned,t.screenshotNotes,t.sasukeSharingan,t.tradeGrade].map(toCSVValue).join(','));
+    const csv = [headers.map(toCSVValue).join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sasuke-buffett-journal-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function systemPrompt() {
+    return `You are “Sasuke Buffett,” an elite proprietary trading performance coach and AI day trading strategist. Your purpose is to improve the user’s trading discipline, risk management, pattern recognition, and long-term expectancy through objective analysis. Core principles: Process over profit. Discipline over excitement. Probability over prediction. Rule adherence over emotional conviction. Capital preservation is priority #1. Analyze the trade journal entry with concise, data-driven precision. Evaluate risk/reward, entry quality, stop placement, catalyst quality, volume/liquidity, trend structure, time-of-day fit, emotional indicators, and rule adherence. Judge primarily by execution quality and process, not profit alone. If the user followed their plan and respected risk, validate the process. If the user violated rules, identify the mistake and explain the likely consequence. Tone: concise, tactical, direct, cold but professional, no fluff, no motivational speech, no fake hype, no guaranteed predictions. End every response with: Trade Grade: 1–10\nBiggest Strength:\nLargest Leak:\nOne Rule For Next Trade:`;
+  }
+
+  async function activateReview(id) {
+    const trade = trades.find(t => t.id === id);
+    if (!trade) return;
+    const apiKey = $('apiKey').value.trim();
+    localStorage.setItem('sasuke_openai_key', apiKey);
+    if (!apiKey) {
+      alert('Add an OpenAI API key first. Security note: this is client-side local testing only.');
+      return;
+    }
+    const entryEl = document.querySelector(`.entry[data-id="${id}"]`);
+    const old = entryEl.innerHTML;
+    entryEl.innerHTML += `<div class="reviewBox"><span class="spinner"></span>Sasuke is analyzing...</div>`;
+    try {
+      const payload = {
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt() },
+          { role: 'user', content: `Review this trade journal entry:\n${JSON.stringify(trade, null, 2)}` }
+        ],
+        temperature: 0.25
+      };
+      // OPENAI API INTEGRATION. For production, replace this direct call with a backend proxy.
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      trade.sasukeSharingan = data.choices?.[0]?.message?.content || 'No response returned.';
+      const gradeMatch = trade.sasukeSharingan.match(/Trade Grade:\s*([^\n]+)/i);
+      trade.tradeGrade = gradeMatch ? gradeMatch[1].trim() : '';
+      await saveTrade(trade);
+      await refresh();
+    } catch (err) {
+      console.error(err);
+      entryEl.innerHTML = old;
+      alert('AI review failed. Check the API key, network, model access, or browser console.');
+    }
+  }
+
+  function switchTab(id) {
+    document.querySelectorAll('section').forEach(s => s.classList.toggle('active', s.id === id));
+    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === id));
+  }
+
+  window.SB = {
+    edit: id => fillForm(trades.find(t => t.id === id)),
+    remove: async id => { if (confirm('Delete this trade?')) { await deleteTrade(id); await refresh(); } },
+    review: activateReview
+  };
+
+  document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+  ['entryPrice','stopPrice','targetPrice','direction'].forEach(id => $(id).addEventListener('input', calcRR));
+  $('tradeForm').addEventListener('submit', async e => { e.preventDefault(); await saveTrade(formToTrade()); resetForm(); await refresh(); });
+  $('resetBtn').addEventListener('click', resetForm);
+  $('exportBtn').addEventListener('click', exportCSV);
+  $('apiKey').value = localStorage.getItem('sasuke_openai_key') || '';
+
+  // Register the real PWA service worker. Requires HTTPS, which GitHub Pages provides.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    });
+  }
+
+  openDB().then(() => { setDefaults(); refresh(); }).catch(err => alert('IndexedDB failed: ' + err.message));
+})();
+</script>
+</body>
+</html>
